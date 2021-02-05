@@ -33,4 +33,9 @@ describe('CalculadoraService', () => {
     const mult = service.calcular(1, 1, CalculadoraService.MULTIPLICACAO);
     expect(mult).toEqual(1);
   }));
+
+  it('should return 0 when invalid operation', inject([CalculadoraService], () => {
+    const invalid = service.calcular(1, 1, 'any');
+    expect(invalid).toEqual(0);
+  }))
 });
