@@ -7,10 +7,10 @@ import { CalculadoraService } from '../services/calculadora.service';
   styleUrls: ['./calculadora.component.scss']
 })
 export class CalculadoraComponent implements OnInit {
-  private numeroA!: string;
-  private numeroB!: string;
-  private resultado!: number;
-  private operacao!: string;
+  private numeroA!: string | null;
+  private numeroB!: string | null;
+  private resultado!: number | null;
+  private operacao!: string | null;
 
   constructor(private service: CalculadoraService) { }
 
@@ -20,22 +20,26 @@ export class CalculadoraComponent implements OnInit {
 
   public limpar(): void {
     this.numeroA = '0';
-    this.numeroB = '';
-    this.resultado = 0;
-    this.operacao = '';
+    this.numeroB = null;
+    this.resultado = null;
+    this.operacao = null;
   }
 
   public adicionarNumero(numero: string): void {
-    if (this.operacao === '') {
-      this.numeroA = this.concatenarNumero(this.numeroA, numero);
+    if (this.operacao === null) {
+      this.numeroA = this.concatenarNumero(this.numeroA ? this.numeroA : '0', numero);
     } else {
-      this.numeroB = this.concatenarNumero(this.numeroB, numero);
+      this.numeroB = this.concatenarNumero(this.numeroB ? this.numeroB : '0', numero);
+
     }
   }
 
   public concatenarNumero(numeroAtual: string, numeroConcatenado: string): string {
-    if (numeroAtual === '0' || numeroAtual === '') {
+    if (numeroAtual === '0' || numeroAtual === null) {
       numeroAtual = '';
+    }
+    if (numeroConcatenado === '.' && numeroAtual === '') {
+      return '0.';
     }
     if (numeroConcatenado === '.' && numeroAtual.indexOf('.') > -1) {
       return numeroAtual;
@@ -44,11 +48,11 @@ export class CalculadoraComponent implements OnInit {
   }
 
   public definirOperacao(operacao: string): void {
-    if (this.operacao === '') {
+    if (this.operacao === null) {
       this.operacao = operacao;
       return;
     }
-    if (this.numeroB !== '') {
+    if (this.numeroB !== null && this.numeroA) {
       this.resultado = this.service.calcular(
         parseFloat(this.numeroA),
         parseFloat(this.numeroB),
@@ -56,24 +60,28 @@ export class CalculadoraComponent implements OnInit {
       );
       this.operacao = operacao;
       this.numeroA = this.resultado.toString();
-      this.numeroB = '';
-      this.resultado = 0;
+      this.numeroB = null;
+      this.resultado = null;
     }
   }
 
   public calcular(): void {
-    if (this.numeroB === '') {
+    if (this.numeroB === null) {
       return;
     }
-
-    this.resultado = this.service.calcular(parseFloat(this.numeroA), parseFloat(this.numeroB), this.operacao);
+    if (this.numeroA && this.numeroB && this.operacao) {
+      this.resultado = this.service.calcular(parseFloat(this.numeroA), parseFloat(this.numeroB), this.operacao);
+    }
   }
 
   public display(): string {
+    if (this.resultado !== null) {
+      return this.resultado.toString();
+    }
     if (this.numeroB !== null) {
       return this.numeroB;
     }
-    return this.numeroA;
+    return this.numeroA ? this.numeroA : '0';
   }
 
 
